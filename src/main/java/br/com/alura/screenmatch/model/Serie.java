@@ -2,6 +2,8 @@ package br.com.alura.screenmatch.model;
 
 import java.util.OptionalDouble;
 
+import br.com.alura.screenmatch.service.ConsultaMyMemory;
+
 public class Serie {
     private String titulo;
     private Categoria genero;
@@ -11,14 +13,14 @@ public class Serie {
     private String imagem;
     private String sinopse;
 
-    public Serie(DadosSerie dadosSerie) {
+    public Serie(DadosSerie dadosSerie){
         this.titulo = dadosSerie.titulo();
         this.genero = Categoria.fromString(dadosSerie.generos().split(",")[0]);
         this.totalTemporadas = dadosSerie.totalTemporadas();
         this.avaliacao = OptionalDouble.of(Double.parseDouble(dadosSerie.avaliacao())).orElse(0.0); // OptionalDouble tenta converter a string para double, se não conseguir retorna 0.0. Uma forma de evitar o try-catch.
         this.atores = dadosSerie.atores();
         this.imagem = dadosSerie.imagem();
-        this.sinopse = dadosSerie.sinopse();
+        this.sinopse = ConsultaMyMemory.obterTraducao(dadosSerie.sinopse());
     }
 
     public String getTitulo() {
