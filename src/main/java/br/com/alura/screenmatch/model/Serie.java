@@ -14,7 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 @Entity
 @Table(name = "series")
 public class Serie {
@@ -39,8 +38,11 @@ public class Serie {
 
     private String sinopse;
 
-    @Transient // Transient para não persistir no banco de dados.
+    //@Transient // Transient para não persistir no banco de dados.
+    @OneToMany(mappedBy = "serie")
     private List<Episodio> episodios = new ArrayList<>();
+    // Uma serie pode ter vários episódios.
+    // mappedBy = "serie" indica que a entidade episodio é proprietária do relacionamento e que a chave estrangeira está na tabela episodio.
 
     public Serie(DadosSerie dadosSerie){
         this.titulo = dadosSerie.titulo();
