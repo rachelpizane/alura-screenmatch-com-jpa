@@ -52,6 +52,8 @@ public class Serie {
         this.sinopse = ConsultaMyMemory.obterTraducao(dadosSerie.sinopse());
     }
 
+    public Serie() {} // Construtor padrão necessário para o JPA poder instanciar a classe.
+
     public Long getId() {
         return id;
     }

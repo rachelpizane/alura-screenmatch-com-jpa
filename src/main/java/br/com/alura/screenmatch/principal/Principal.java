@@ -64,15 +64,28 @@ public class Principal {
     }
 
     private void listarSeriesBuscadas() {
-        if(series.isEmpty()) {
+        //List<Serie> seriesBD = serieRepository.findAll(); // Busca todas as séries do banco de dados
+        List<Serie> seriesBD = serieRepository.findAllByOrderByGenero(); // Busca todas as séries do banco de dados ordenadas por gênero
+
+        if(seriesBD.isEmpty()) {
             System.out.println("(Nenhuma série foi buscada)");
             return;
         }
 
-        series.stream()
-            .map(serie -> new Serie(serie))
-            .sorted(Comparator.comparing(serie -> serie.getGenero().toString()))
-            .forEach(System.out::println); // Que lindoooo
+        seriesBD.stream().forEach(serie -> {
+            System.out.println(serie);
+        });
+
+        // VERSAO ANTERIOR, SEM O USO DO BANCO DE DADOS
+        // if(series.isEmpty()) {
+        //     System.out.println("(Nenhuma série foi buscada)");
+        //     return;
+        // } 
+
+        // series.stream()
+        //     .map(serie -> new Serie(serie))
+        //     .sorted(Comparator.comparing(serie -> serie.getGenero().toString()))
+        //     .forEach(System.out::println); // Que lindoooo
     }
 
     private void buscarSerieWeb() {
