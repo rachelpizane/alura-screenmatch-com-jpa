@@ -37,6 +37,7 @@ public class Principal {
                     2 - Buscar episódios
                     3 - Listar séries buscadas
                     4 - Buscar série por título
+                    5-  Buscar séries por ator
 
                     0 - Sair
                     """;
@@ -59,6 +60,9 @@ public class Principal {
                 case "4":
                     buscarSeriePorTitulo();
                     break;
+                case "5":
+                    buscarSeriesPorAtor();
+                    break;
                 case "0":
                     System.out.println("Saindo...");
                     break;
@@ -69,12 +73,30 @@ public class Principal {
         }
     }
 
+    private void buscarSeriesPorAtor() {
+        System.out.print("Digite o nome do ator para busca: ");
+        String nomeAtor = leitura.nextLine();
+
+        System.out.print("Digite avaliacao mínima: ");
+        Double avaliacaoSerie = leitura.nextDouble();
+        
+        List<Serie> seriesPorAtor = serieRepository.findAllByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(nomeAtor, avaliacaoSerie );
+        System.out.println("Seriem em que o ator " + nomeAtor + " atuou:");
+        if (seriesPorAtor.isEmpty()) {
+            System.out.println("Nenhuma série encontrada");
+        } else {
+            seriesPorAtor.forEach(serie -> {
+                System.out.println("Titulo: " + serie.getTitulo());
+                System.out.println("Avaliação: " + serie.getAvaliacao());
+            });
+        }
+    }
+
     private void listarSeriesBuscadas() {
         // List<Serie> seriesBD = serieRepository.findAll(); // Busca todas as séries do
         // banco de dados
         seriesBD = serieRepository.findAllByOrderByGenero(); // Busca todas as séries do banco de dados ordenadas por
                                                              // gênero
-
         if (seriesBD.isEmpty()) {
             System.out.println("(Nenhuma série foi buscada)");
             return;
@@ -119,7 +141,7 @@ public class Principal {
         String nomeSerie = leitura.nextLine();
 
         Optional<Serie> serieSelecionada = serieRepository.findByTituloContainingIgnoreCase(nomeSerie);
-        
+
         // Optional<Serie> serieSelecionada = seriesBD.stream()
         //         .filter(serie -> serie.getTitulo().equalsIgnoreCase(nomeSerie))
         //         .findFirst();
