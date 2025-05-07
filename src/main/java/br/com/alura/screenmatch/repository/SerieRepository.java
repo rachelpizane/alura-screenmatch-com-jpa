@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 import br.com.alura.screenmatch.model.Categoria;
+import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.model.Serie;
 
 public interface SerieRepository extends JpaRepository<Serie, Long> {
@@ -31,4 +32,10 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     // O método seriesPorTemporadaEAvaliacao é uma consulta personalizada usando JPQL (Java Persistence Query Language).
     // A consulta JPQL é semelhante à SQL, mas opera em entidades e atributos em vez de tabelas e colunas.
     // A vantagem de usar JPQL é que ela é independente do banco de dados, o que torna o código mais portável.
+
+    @Query("SELECT e FROM Serie s JOIN s.episodios e WHERE e.titulo ILIKE %:nomeEpisodio%")
+    List<Episodio> episodiosPorTrecho(String nomeEpisodio);
+    // A Query acima busca episódios de séries onde o título do episódio contém o trecho fornecido, usando a cláusula ILIKE para comparação sem diferenciar maiúsculas e minúsculas.
+    // O operador % é usado como um caractere curinga para indicar que pode haver qualquer sequência de caracteres antes ou depois do trecho fornecido.
+    // s.episodios é é referente a Entidade Episodio, que possui o atributo Serie como chave estrangeira.
 }
