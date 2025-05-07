@@ -38,6 +38,7 @@ public class Principal {
                     3 - Listar séries buscadas
                     4 - Buscar série por título
                     5-  Buscar séries por ator
+                    6 - Buscar top 5 séries
 
                     0 - Sair
                     """;
@@ -63,6 +64,8 @@ public class Principal {
                 case "5":
                     buscarSeriesPorAtor();
                     break;
+                case "6":
+                    buscarTop5Series();
                 case "0":
                     System.out.println("Saindo...");
                     break;
@@ -73,13 +76,21 @@ public class Principal {
         }
     }
 
+    private void buscarTop5Series() {
+        List<Serie> top5Series= serieRepository.findTop5ByOrderByAvaliacaoDesc();
+
+        top5Series.forEach(serie -> {
+            System.out.println("Titulo: " + serie.getTitulo() + " - Avaliação: " + serie.getAvaliacao());
+        });
+    }
+
     private void buscarSeriesPorAtor() {
         System.out.print("Digite o nome do ator para busca: ");
         String nomeAtor = leitura.nextLine();
 
         System.out.print("Digite avaliacao mínima: ");
         Double avaliacaoSerie = leitura.nextDouble();
-        
+
         List<Serie> seriesPorAtor = serieRepository.findAllByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(nomeAtor, avaliacaoSerie );
         System.out.println("Seriem em que o ator " + nomeAtor + " atuou:");
         if (seriesPorAtor.isEmpty()) {

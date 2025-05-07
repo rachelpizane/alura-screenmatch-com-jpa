@@ -12,6 +12,10 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     // Você pode adicionar métodos personalizados se necessário.
     // Exemplo: List<Serie> findByTitulo(String titulo);
     List<Serie> findAllByOrderByGenero(); // Método para listar todas as séries ordenadas por gênero.
+   
     Optional<Serie> findByTituloContainingIgnoreCase(String titulo);
+    
     List<Serie> findAllByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(String ator, double avaliacao); // Método para buscar séries por ator e avaliação maior ou igual a um valor específico.
+    
+    List<Serie> findTop5ByOrderByAvaliacaoDesc();
 }
