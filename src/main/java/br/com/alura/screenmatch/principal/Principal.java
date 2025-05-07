@@ -93,8 +93,7 @@ public class Principal {
         System.out.println("Digite a avaliação mínima: ");
         double avaliacao = leitura.nextDouble();
 
-        List<Serie> seriesPorTotalTemporadasEAvaliacao = serieRepository
-                .findAllByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(totalTemporadas, avaliacao);
+        List<Serie> seriesPorTotalTemporadasEAvaliacao = serieRepository.seriesPorTemporadaEAvaliacao(totalTemporadas, avaliacao);
 
         if (!seriesPorTotalTemporadasEAvaliacao.isEmpty()) {
             System.out.println("Séries encontradas:");
