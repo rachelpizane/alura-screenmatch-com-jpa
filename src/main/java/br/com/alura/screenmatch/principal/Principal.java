@@ -31,6 +31,7 @@ public class Principal {
     }
 
     public void exibeMenu() {
+        leitura = new Scanner(System.in);
         String opcao = "";
         while (!opcao.equals("0")) {
             String menu = """
@@ -41,6 +42,7 @@ public class Principal {
                     5-  Buscar séries por ator
                     6 - Buscar top 5 séries
                     7 - Buscar séries por categoria
+                    8 - Buscar séries por total de temporadas e avaliação
 
                     0 - Sair
                     """;
@@ -68,8 +70,12 @@ public class Principal {
                     break;
                 case "6":
                     buscarTop5Series();
+                    break;
                 case "7":
                     buscarSeriesPorCategoria();
+                    break;
+                case "8":
+                    buscarSeriesPorTotalTemporadasEAvaliacao();
                     break;
                 case "0":
                     System.out.println("Saindo...");
@@ -78,6 +84,25 @@ public class Principal {
                     System.out.println("Opção inválida");
             }
             System.out.println("--------------------------------");
+        }
+    }
+
+    private void buscarSeriesPorTotalTemporadasEAvaliacao() {
+        System.out.println("Digite o total máximo de temporadas: ");
+        int totalTemporadas = leitura.nextInt();
+        System.out.println("Digite a avaliação mínima: ");
+        double avaliacao = leitura.nextDouble();
+
+        List<Serie> seriesPorTotalTemporadasEAvaliacao = serieRepository
+                .findAllByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(totalTemporadas, avaliacao);
+
+        if (!seriesPorTotalTemporadasEAvaliacao.isEmpty()) {
+            System.out.println("Séries encontradas:");
+            seriesPorTotalTemporadasEAvaliacao.forEach(serie -> {
+                System.out.println("Título: " + serie.getTitulo() + " - Avaliação: " + serie.getAvaliacao());
+            });
+        } else {
+            System.out.println("Nenhuma série encontrada com os critérios informados.");
         }
     }
 

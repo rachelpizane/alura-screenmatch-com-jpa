@@ -19,6 +19,8 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     List<Serie> findAllByAtoresContainingIgnoreCaseAndAvaliacaoGreaterThanEqual(String ator, double avaliacao); // Método para buscar séries por ator e avaliação maior ou igual a um valor específico.
     
     List<Serie> findTop5ByOrderByAvaliacaoDesc();
-    
+
     List<Serie> findAllByGenero(Categoria genero); // Método para buscar séries por gênero.
+
+    List<Serie> findAllByTotalTemporadasLessThanEqualAndAvaliacaoGreaterThanEqual(int totalTemporadas, double avaliacao); 
 }
