@@ -1,6 +1,7 @@
 package br.com.alura.screenmatch.repository;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,5 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     // Você pode adicionar métodos personalizados se necessário.
     // Exemplo: List<Serie> findByTitulo(String titulo);
     List<Serie> findAllByOrderByGenero(); // Método para listar todas as séries ordenadas por gênero.
+    Optional<Serie> findByTituloContainingIgnoreCase(String titulo);
 }

@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.OptionalDouble;
 
 import br.com.alura.screenmatch.service.ConsultaMyMemory;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,7 +41,7 @@ public class Serie {
     private String sinopse;
 
     //@Transient // Transient para não persistir no banco de dados.
-    @OneToMany(mappedBy = "serie")
+    @OneToMany(mappedBy = "serie", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Episodio> episodios = new ArrayList<>();
     // Uma serie pode ter vários episódios.
     // mappedBy = "serie" indica que a entidade episodio é proprietária do relacionamento e que a chave estrangeira está na tabela episodio.
@@ -116,10 +118,29 @@ public class Serie {
         this.sinopse = sinopse;
     }
 
+    public List<Episodio> getEpisodios() {
+        return episodios;
+    }
+
+    public void setEpisodios(List<Episodio> episodios) {
+        episodios.forEach(episodio -> episodio.setSerie(this)); 
+        // Para cada episódio, setamos a série que ele pertence.
+        // @OneToMany define que tem um relecionamento e que Episodio tem uma coluna serie_id que referencia a série, mas ela informa automaticamente o id da série em cada registro de episodio.
+        this.episodios = episodios;
+    }
+
     @Override
     public String toString() {
-        return "Serie [genero=" + genero + ", titulo=" + titulo + ", genero=" + genero + ", totalTemporadas=" + totalTemporadas
-                + ", avaliacao=" + avaliacao + ", atores=" + atores + ", imagem=" + imagem + ", sinopse=" + sinopse
-                + "]";
+        return "Serie{" +
+                "id=" + id +
+                ", titulo='" + titulo + '\'' +
+                ", genero=" + genero +
+                ", totalTemporadas=" + totalTemporadas +
+                ", avaliacao=" + avaliacao +
+                ", atores='" + atores + '\'' +
+                ", imagem='" + imagem + '\'' +
+                ", sinopse='" + sinopse + '\'' +
+                ", episodios=" + episodios +
+                '}';
     }
 }

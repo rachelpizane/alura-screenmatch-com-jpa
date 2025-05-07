@@ -2,6 +2,7 @@ package br.com.alura.screenmatch.principal;
 
 import br.com.alura.screenmatch.model.DadosSerie;
 import br.com.alura.screenmatch.model.DadosTemporada;
+import br.com.alura.screenmatch.model.Episodio;
 import br.com.alura.screenmatch.model.Serie;
 import br.com.alura.screenmatch.repository.SerieRepository;
 import br.com.alura.screenmatch.service.ConsumoApi;
@@ -9,7 +10,9 @@ import br.com.alura.screenmatch.service.ConverteDados;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
 
@@ -20,11 +23,11 @@ public class Principal {
     private final String API_KEY = "&apikey=6585022c";
     private List<DadosSerie> series = new ArrayList<>();
     private SerieRepository serieRepository;
-
+    private List<Serie> seriesBD = new ArrayList<>();
 
     public Principal(SerieRepository repository) {
         this.serieRepository = repository;
-     }
+    }
 
     public void exibeMenu() {
         String opcao = "";
@@ -33,11 +36,12 @@ public class Principal {
                     1 - Buscar séries
                     2 - Buscar episódios
                     3 - Listar séries buscadas
+                    4 - Buscar série por título
 
                     0 - Sair
                     """;
             String mensagemInput = "Digite a opção desejada: ";
-            
+
             System.out.println(menu);
             System.out.print(mensagemInput);
             opcao = leitura.nextLine();
@@ -52,6 +56,9 @@ public class Principal {
                 case "3":
                     listarSeriesBuscadas();
                     break;
+                case "4":
+                    buscarSeriePorTitulo();
+                    break;
                 case "0":
                     System.out.println("Saindo...");
                     break;
@@ -63,10 +70,12 @@ public class Principal {
     }
 
     private void listarSeriesBuscadas() {
-        //List<Serie> seriesBD = serieRepository.findAll(); // Busca todas as séries do banco de dados
-        List<Serie> seriesBD = serieRepository.findAllByOrderByGenero(); // Busca todas as séries do banco de dados ordenadas por gênero
+        // List<Serie> seriesBD = serieRepository.findAll(); // Busca todas as séries do
+        // banco de dados
+        seriesBD = serieRepository.findAllByOrderByGenero(); // Busca todas as séries do banco de dados ordenadas por
+                                                             // gênero
 
-        if(seriesBD.isEmpty()) {
+        if (seriesBD.isEmpty()) {
             System.out.println("(Nenhuma série foi buscada)");
             return;
         }
@@ -77,22 +86,23 @@ public class Principal {
 
         // VERSAO ANTERIOR, SEM O USO DO BANCO DE DADOS
         // if(series.isEmpty()) {
-        //     System.out.println("(Nenhuma série foi buscada)");
-        //     return;
-        // } 
+        // System.out.println("(Nenhuma série foi buscada)");
+        // return;
+        // }
 
         // series.stream()
-        //     .map(serie -> new Serie(serie))
-        //     .sorted(Comparator.comparing(serie -> serie.getGenero().toString()))
-        //     .forEach(System.out::println); // Que lindoooo
+        // .map(serie -> new Serie(serie))
+        // .sorted(Comparator.comparing(serie -> serie.getGenero().toString()))
+        // .forEach(System.out::println); // Que lindoooo
     }
 
     private void buscarSerieWeb() {
         DadosSerie dados = getDadosSerie();
         Serie serie = new Serie(dados);
         serieRepository.save(serie); // Salva a série no banco de dados
-        //series.add(dados); 
-        System.out.println(dados); // Quando chamamos apenas a variavel em um System.out.println, o Java chama o toString() automaticamente.
+        // series.add(dados);
+        System.out.println(dados); // Quando chamamos apenas a variavel em um System.out.println, o Java chama o
+                                   // toString() automaticamente.
     }
 
     private DadosSerie getDadosSerie() {
@@ -104,14 +114,50 @@ public class Principal {
     }
 
     private void buscarEpisodioPorSerie() {
-        DadosSerie dadosSerie = getDadosSerie();
-        List<DadosTemporada> temporadas = new ArrayList<>();
+        listarSeriesBuscadas();
+        System.out.print("Escolha uma serie pelo nome: ");
+        String nomeSerie = leitura.nextLine();
 
-        for (int i = 1; i <= dadosSerie.totalTemporadas(); i++) {
-            var json = consumo.obterDados(ENDERECO + dadosSerie.titulo().replace(" ", "+") + "&season=" + i + API_KEY);
-            DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
-            temporadas.add(dadosTemporada);
+        Optional<Serie> serieSelecionada = serieRepository.findByTituloContainingIgnoreCase(nomeSerie);
+        
+        // Optional<Serie> serieSelecionada = seriesBD.stream()
+        //         .filter(serie -> serie.getTitulo().equalsIgnoreCase(nomeSerie))
+        //         .findFirst();
+
+        if (serieSelecionada.isPresent()) {
+            Serie serieEncontrada = serieSelecionada.get();
+
+            List<DadosTemporada> temporadas = new ArrayList<>();
+            for (int i = 1; i <= serieEncontrada.getTotalTemporadas(); i++) {
+                var json = consumo
+                        .obterDados(ENDERECO + serieEncontrada.getTitulo().replace(" ", "+") + "&season=" + i + API_KEY);
+                DadosTemporada dadosTemporada = conversor.obterDados(json, DadosTemporada.class);
+                temporadas.add(dadosTemporada);
+            }
+
+            temporadas.forEach(System.out::println);
+
+            List<Episodio> episodios = temporadas
+                .stream()
+                .flatMap(d -> d.episodios().stream()
+                    .map(e -> new Episodio(d.numero(), e)))
+                .collect(Collectors.toList());
+
+            serieEncontrada.setEpisodios(episodios);
+            serieRepository.save(serieEncontrada); // Salva a série atualizada
+        } else {
+            System.out.println("Série não encontrada");
         }
-        temporadas.forEach(System.out::println);
+    }
+
+    private void buscarSeriePorTitulo() {
+        System.out.print("Escolha uma serie pelo nome: ");
+        String nomeSerie = leitura.nextLine();
+        Optional<Serie> serieBuscada = serieRepository.findByTituloContainingIgnoreCase(nomeSerie);
+        if (serieBuscada.isPresent()) {
+            System.out.println("Dados da Serie: " + serieBuscada.get());
+        } else {
+            System.out.println("Série não encontrada");
+        }
     }
 }
